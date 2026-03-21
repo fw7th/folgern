@@ -1,16 +1,23 @@
 #include "tensor.h"
 #include "allocator.h"
-#include <cstdio>
-#include <cstdlib>
 
 namespace folgern {
-void Tensor::spawn(int _w, DType dtype, Allocator *_allocator) {
+
+void Tensor::spawn(int _w, DType _dtype, Allocator *_allocator) {
+  if (dims == 1 && w == _w && dtype == _dtype && allocator == _allocator)
+    return;
+
+  release();
+
   allocator = _allocator;
-  allocator->allocate(calcBytes(_w, dtype));
+  dtype = _dtype;
+
+  dataptr = allocator->allocate(calcBytes(_w, _dtype));
 }
 
-void Tensor::spawn(int _w, int _h, DType dtype, Allocator *_allocator) {
+void Tensor::spawn(int _w, int _h, DType _dtype, Allocator *_allocator) {
   allocator = _allocator;
-  allocator->allocate(calcBytes(_w, _h, dtype));
+  dataptr = allocator->allocate(calcBytes(_w, _h, _dtype));
 }
+
 }; // namespace folgern
