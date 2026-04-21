@@ -1,17 +1,13 @@
 #include "tensor.h"
 
-namespace folgern {
-
-void Tensor::spawn(int _w, DType _dtype, Allocator *_allocator) {
-  if (dims == 1 && w == _w && dtype == _dtype && allocator == _allocator)
+void Tensor::create(int _size, Allocator *_allocator) {
+  if (w == _size && allocator == _allocator)
     return;
 
-  release();
+  // release();
 
   allocator = _allocator;
-  dtype = _dtype;
+  w = _size;
 
-  dataptr = allocator->allocate(calcBytes(_w, _dtype));
+  dataptr = allocator->allocate(_size);
 }
-
-}; // namespace folgern

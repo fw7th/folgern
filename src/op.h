@@ -1,31 +1,20 @@
 #include "tensor.h"
 #include <vector>
 
-struct Op {
-  std::vector<folgern::Tensor *> inputs;
-  std::vector<folgern::Tensor *> outputs;
-  virtual void forward() = 0;
-  virtual ~Op() = default;
+class Op {
+  Tensor *output;
+
+  Op(Tensor input);
 };
 
-inline folgern::Tensor *relu(folgern::Tensor *x) {
-  auto *op = new ReluOp(x);
-  auto *out = new folgern::Tensor();
+inline Op::Op(Tensor input) {
+  Tensor output(input.w);
+  for (int i = 0; i < input.w; i++) {
+    float x = *(input.dataptr + i);
+    float result = (x > 0.0f) ? x : 0.0f;
+    *(output.dataptr + i) = result;
 
-  op->inputs = {x};
-  op->outputs = {out};
-  out->producer = op;
-
-  return out;
-}
-
-inline folgern::Tensor *matmul(folgern::Tensor *a, folgern::Tensor *b) {
-  auto *op = new MatmulOp();
-  auto *out = new folgern::Tensor();
-
-  op->inputs = {a, b};
-  op->outputs = {out};
-  out->producer = op;
-
-  return out;
+    printf("Ptr Address: %p, Ptr Value: %f\n", (output.dataptr + i),
+           *(output.dataptr + i));
+  }
 }
