@@ -36,6 +36,9 @@
 *.exe
 *.out
 *.app
+*.pt
 
 # debug information files
 *.dwo
+build/*
+testy.cpp
