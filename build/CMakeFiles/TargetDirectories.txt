@@ -1,0 +1,4 @@
+/home/fw7th/folgern/build/CMakeFiles/folgern.dir
+/home/fw7th/folgern/build/CMakeFiles/main.dir
+/home/fw7th/folgern/build/CMakeFiles/edit_cache.dir
+/home/fw7th/folgern/build/CMakeFiles/rebuild_cache.dir

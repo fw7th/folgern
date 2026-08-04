@@ -1,0 +1,2 @@
+/usr/bin/ar qc libfolgern.a CMakeFiles/folgern.dir/src/tensor.cpp.o
+/usr/bin/ranlib libfolgern.a

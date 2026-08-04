@@ -1,0 +1,1 @@
+/usr/bin/c++ -fsanitize=address -O0 -g -fsanitize=address -Wl,--dependency-file=CMakeFiles/main.dir/link.d CMakeFiles/main.dir/main.cpp.o -o main  libfolgern.a
