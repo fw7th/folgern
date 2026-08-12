@@ -21,6 +21,9 @@ struct Add {
         sum += parent->dataptr[i];
       }
       child.dataptr[i] = sum;
+      printf("Performing a sum");
+      printf("Op Address: %p, Sum Value: %f\n", (void *)(child.dataptr + i),
+             child.dataptr[i]);
     }
   }
 };
