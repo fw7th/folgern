@@ -3,65 +3,86 @@
 
 #include "allocator.h"
 #include <cstdio>
+#include <utility> // for std::exchange
 
-/* Let's create a 1D tensor for now.*/
 struct Tensor {
-  // empty tensor
   Tensor();
-  // 1d tensor
-  Tensor(int w, Allocator *allocator = 0);
-  // copy
-  Tensor(const Tensor &t);
-  // delete
+  explicit Tensor(int w, Allocator *allocator = nullptr);
   ~Tensor();
-  // allocate tensor space
+
+  // Delete copy — prevents accidental shallow copies
+  Tensor(const Tensor &) = delete;
+  Tensor &operator=(const Tensor &) = delete;
+
+  // Move is allowed
+  Tensor(Tensor &&other) noexcept;
+  Tensor &operator=(Tensor &&other) noexcept;
+
   void create(int size, Allocator *allocator);
-  // refcount++
-  void addref();
-  // fill tensor w/ numbs of dtype
   void fill(float f);
-  // free tensor memory
   void release();
 
-  int w;
-
-  // pointer to stored data
-  float *dataptr;
-
-  // reference counter
-  int *refcount;
-
-  // memory allocator
-  Allocator *allocator;
-
-  // Op *op_ptr = nullptr;
+  int w = 0;
+  float *dataptr = nullptr;
+  Allocator *allocator = nullptr;
 };
 
-inline Tensor::Tensor(int _w, Allocator *_allocator)
-    : w(0), allocator(nullptr) {
-  create(_w, _allocator);
-}
+inline Tensor::Tensor() = default;
+
+inline Tensor::Tensor(int _w, Allocator *_allocator) { create(_w, _allocator); }
 
 inline Tensor::~Tensor() { release(); }
+
+inline Tensor::Tensor(Tensor &&other) noexcept
+    : w(other.w), dataptr(other.dataptr), allocator(other.allocator) {
+  other.w = 0;
+  other.dataptr = nullptr;
+  other.allocator = nullptr;
+}
+
+inline Tensor &Tensor::operator=(Tensor &&other) noexcept {
+  if (this != &other) {
+    release();
+    w = other.w;
+    dataptr = other.dataptr;
+    allocator = other.allocator;
+    other.w = 0;
+    other.dataptr = nullptr;
+    other.allocator = nullptr;
+  }
+  return *this;
+}
+
+inline void Tensor::create(int _size, Allocator *_allocator) {
+  if (w == _size && allocator == _allocator && dataptr != nullptr)
+    return;
+
+  release();
+
+  allocator = _allocator;
+  w = _size;
+  dataptr = allocator ? allocator->allocate(_size) : nullptr;
+}
 
 inline void Tensor::fill(float f) {
   printf("In fill method\n");
   printf("W = %d\n", w);
   for (int i = 0; i < w; i++) {
-    *(dataptr + i) = f;
-    printf("Ptr Address: %p, Ptr Value: %f\n", (dataptr + i), *(dataptr + i));
+    dataptr[i] = f;
+    printf("Ptr Address: %p, Ptr Value: %f\n", (void *)(dataptr + i),
+           dataptr[i]);
   }
 }
 
-inline void Tensor::addref() { *refcount + 1; }
-
 inline void Tensor::release() {
-  /*
-if (*refcount == 1) {
-  allocator->deallocate(dataptr);
-}
-  */
-  allocator->deallocate(dataptr);
+  if (dataptr == nullptr)
+    return;
+
+  if (allocator) {
+    allocator->deallocate(dataptr);
+  }
+  dataptr = nullptr; // CRITICAL: prevent double-free
+  w = 0;
 }
 
 #endif
